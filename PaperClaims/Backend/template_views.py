@@ -1,7 +1,9 @@
 import json
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .template_models import PaperClaimTable
+
+from .configurations import MASTER_TABLE
+from .template_models import PaperClaimTable, MasterTable
 
 
 @csrf_exempt
@@ -99,3 +101,25 @@ def delete_all_paper_claims(request):
             return JsonResponse({'error': str(e)}, status=500)
     else:
         return JsonResponse({'message': 'Invalid request method'}, status=400)
+
+
+@csrf_exempt
+def master_table_api(request):
+    if request.method == 'GET':
+        try:
+            # Retrieve distinct values for doc_type and health_plan from the master-table
+            doc_types = MasterTable.get_distinct_values('doc_type')
+            health_plans = MasterTable.get_distinct_values('health_plan')
+
+            # Return JSON response
+            return JsonResponse({
+                'doc_types': doc_types,
+                'health_plans': health_plans
+            })
+
+        except Exception as e:
+            return JsonResponse({'error': str(e)}, status=500)
+
+    else:
+        return JsonResponse({'message': 'Invalid request method'}, status=400)
+

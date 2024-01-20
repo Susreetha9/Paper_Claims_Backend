@@ -1,10 +1,12 @@
 import json
 import uuid
 from decimal import Decimal
+
+
 from boto3.dynamodb.conditions import Attr, Key
 from django.contrib.sites import requests
 
-from .configurations import PAPER_CLAIMS_TABLE
+from .configurations import PAPER_CLAIMS_TABLE, MASTER_TABLE
 from .common import current_date_time
 from django.core.files.storage import FileSystemStorage
 
@@ -146,3 +148,17 @@ class PaperClaimTable:
         response = PAPER_CLAIMS_TABLE.scan()
         for item in response.get('Items', []):
             PAPER_CLAIMS_TABLE.delete_item(Key={'doc_id': item['doc_id']})
+
+
+class MasterTable:
+
+    @staticmethod
+    def get_distinct_values(attr):
+        try:
+            # Retrieve distinct values for the specified attribute from the master-table
+            values = MASTER_TABLE.scan(ProjectionExpression=attr)['Items']
+            distinct_values = list(set(item.get(attr) for item in values))
+            return distinct_values
+        except Exception as e:
+            raise ValueError(f"Error fetching distinct values for {attr}: {str(e)}")
+

@@ -10,6 +10,7 @@ try:
     )
     dynamodb_resource = session.resource('dynamodb')
     PAPER_CLAIMS_TABLE = dynamodb_resource.Table('paper-claims')
+    MASTER_TABLE = dynamodb_resource.Table('master-table')
 except Exception as e:
     print(f"Error initializing DynamoDB table: {str(e)}")
 
